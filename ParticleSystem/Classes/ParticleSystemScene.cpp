@@ -2,6 +2,7 @@
 
 #include "cocostudio/CocoStudio.h"
 #include "ui/CocosGUI.h"
+#define btnPos 50
 
 USING_NS_CC;
 
@@ -72,13 +73,14 @@ bool ParticleSystemScene::init()
 	_ParticleControl._fSpread = 180.0f;
 	_ParticleControl._fVelocity = 2.5;	 // 分子的離開速度
 	_ParticleControl._fLifeTime = 3.5f;	 // 分子的存活時間
-	_ParticleControl._fSpin = 30;
+	_ParticleControl._fSpin = 0;
 	_ParticleControl._fGravity = 0;
 	_ParticleControl._fOpacity = 255;
 	_ParticleControl._fElpasedTime = 0;
 	_ParticleControl._cName = "flare.png";
 	_ParticleControl.setType(STAY_FOR_TWOSECONDS); // 分子運動的型態，預設為 0
-	_ParticleControl._windDir = Point(0, 0); // 本範例沒有實作此項功能
+	_ParticleControl._fWindDir = 0; // 本範例沒有實作此項功能
+	_ParticleControl._fWindStr = 0;
 
 	// 分子的可調整參數的捲動軸
 	// Slider of Gravity
@@ -147,6 +149,18 @@ bool ParticleSystemScene::init()
 	BlueSlider->setMaxPercent(100); 	// 將 0 到 100 對應到 0 到 255 之間
 	_BlueBMValue = (cocos2d::ui::TextBMFont *)rootNode->getChildByName("BlueBMFont");
 
+	// Slider of windDir
+	auto *WindDirSlider = (cocos2d::ui::Slider *)(rootNode->getChildByName("Slider_WindDir"));
+	WindDirSlider->addEventListener(CC_CALLBACK_2(ParticleSystemScene::WindDirEvent, this));
+	WindDirSlider->setMaxPercent(100); 	// 將 0 到 100 對應到 -180 到 180 之間
+	_WindDirBMValue = (cocos2d::ui::TextBMFont *)rootNode->getChildByName("WindDirBMFont");
+
+	// Slider of windStr
+	auto *WindStrSlider = (cocos2d::ui::Slider *)(rootNode->getChildByName("Slider_WindStr"));
+	WindStrSlider->addEventListener(CC_CALLBACK_2(ParticleSystemScene::WindStrEvent, this));
+	WindStrSlider->setMaxPercent(100); 	// 將 0 到 100 對應到 0 到 10 之間
+	_WindStrBMValue = (cocos2d::ui::TextBMFont *)rootNode->getChildByName("WindStrBMFont");
+
 
 	// Slider of Type
 	auto *TypeSlider = (cocos2d::ui::Slider *)(rootNode->getChildByName("Slider_Type"));
@@ -156,13 +170,13 @@ bool ParticleSystemScene::init()
 
 	//btn
 	btn = new CButton[7];
-	btn[0].set(Vec2(50, 50), "bubble.png");    addChild(btn+0, 1);
-	btn[1].set(Vec2(130, 50), "circle.png");   addChild(btn+1, 1);
-	btn[2].set(Vec2(210, 50), "cloud.png");    addChild(btn+2, 1);
-	btn[3].set(Vec2(290, 50), "flare.png");    addChild(btn+3, 1);
-	btn[4].set(Vec2(370, 50), "raindrop.png"); addChild(btn+4, 1);
-	btn[5].set(Vec2(450, 50), "comet.png");    addChild(btn+5, 1);
-	btn[6].set(Vec2(530, 50), "spark.png");    addChild(btn+6, 1);
+	btn[0].set(Vec2(btnPos+80*0, 50), "bubble.png");    addChild(btn+0, 1);
+	btn[1].set(Vec2(btnPos+80*1, 50), "circle.png");   addChild(btn+1, 1);
+	btn[2].set(Vec2(btnPos+80*2, 50), "cloud.png");    addChild(btn+2, 1);
+	btn[3].set(Vec2(btnPos+80*3, 50), "flare.png");    addChild(btn+3, 1);
+	btn[4].set(Vec2(btnPos+80*4, 50), "raindrop.png"); addChild(btn+4, 1);
+	btn[5].set(Vec2(btnPos+80*5, 50), "comet.png");    addChild(btn+5, 1);
+	btn[6].set(Vec2(btnPos+80*6, 50), "spark.png");    addChild(btn+6, 1);
 	btn[0].setUse();
 	_ParticleControl.setParticlesName(btn[0]._SpriteName);
 
@@ -384,6 +398,31 @@ void ParticleSystemScene::BlueEvent(cocos2d::Ref* sender, cocos2d::ui::Slider::E
 		float fBlue = percent*2.55f; // 0 到 255 之間
 		_BlueBMValue->setString(StringUtils::format("%2.1f", fBlue));
 		_ParticleControl._fBlue = fBlue;
+	}
+}
+
+void ParticleSystemScene::WindDirEvent(cocos2d::Ref* sender, cocos2d::ui::Slider::EventType type)
+{
+	if (type == Slider::EventType::ON_PERCENTAGE_CHANGED)
+	{
+		Slider* slider = dynamic_cast<Slider*>(sender);
+		int percent = slider->getPercent();
+		float fwindDir = (-50.0f + percent) / 5.0f*18;  //-180~180
+		_WindDirBMValue->setString(StringUtils::format("%2.1f", fwindDir));
+		float t = fwindDir * M_PI / 180.0f;
+		_ParticleControl._fWindDir = t;
+	}
+}
+
+void ParticleSystemScene::WindStrEvent(cocos2d::Ref* sender, cocos2d::ui::Slider::EventType type)
+{
+	if (type == Slider::EventType::ON_PERCENTAGE_CHANGED)
+	{
+		Slider* slider = dynamic_cast<Slider*>(sender);
+		int percent = slider->getPercent();
+		float fStr = percent*0.1f; // 0 到 10 之間
+		_WindStrBMValue->setString(StringUtils::format("%2.1f", fStr));
+		_ParticleControl._fWindStr = fStr;
 	}
 }
 

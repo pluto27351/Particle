@@ -34,8 +34,10 @@ public:
 	float   _fGravity;
 	float   _fElpasedTime;	// 經過多少時間，以秒為單位，作為成生分子的計算依據
 	float   _fOpacity;	// 分子透明度
+	float   _fWindStr;
+	float   _fWindDir;
 	char    *_cName;
-	cocos2d::Point _windDir;  // 風的方向，本範例沒有實作
+	//cocos2d::Point _windDir;  // 風的方向，本範例沒有實作
 
 	CParticleSystem();
 	~CParticleSystem();

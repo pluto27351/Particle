@@ -31,83 +31,47 @@ void CParticleSystem::init(cocos2d::Layer &inlayer)
 void CParticleSystem::doStep(float dt)
 {
 	CParticle *get;
-	list <CParticle *>::iterator it;	
+	list <CParticle *>::iterator it;
 	if (_bEmitterOn) { // 根據 Emitter 設定的相關參數，產生相對應的分子
-		if (_iInUsed < 100 && fireworkmode == 1) {
-			get = _FreeList.front();
-			get->setBehavior(EMITTER_DEFAULT);
-			get->setVelocity(0);
-			get->setLifetime(_fLifeTime);
-			get->setGravity(_fGravity);
-			get->setPosition(_emitterPt);
-			get->setColor(Color3B(_fRed, _fGreen, _fBlue));
-			get->setSpin(_fSpin);
-			get->setOpacity(_fOpacity);
-			get->setSize(0.125f);
-			get->setParticleName(_cName);
-			// 根據 _fSpread 與 _vDir 產生方向
-			float t = (rand() % 1001) / 1000.0f; // 產生介於 0 到 1 間的數
-			t = _fSpread - t * _fSpread * 2; //  產生的角度，轉成弧度
-			t = (_fDir + t)* M_PI / 180.0f;
-			Vec2 vdir(cosf(t), sinf(t));
-			get->setDirection(vdir);
-			_FreeList.pop_front();
-			_InUsedList.push_front(get);
-			_iFree--; _iInUsed++;
-		}
-		else if(fireworkmode==3){
-			for (int i = 0; i < 150; i++) {
-				get = _FreeList.front();
-				get->setBehavior(HEARTSHAPE);
-				get->setPosition(_emitterPt+Vec2(0,400));
-				get->setGravity(_fGravity);
-				_FreeList.pop_front();
-				_InUsedList.push_front(get);
-				_iFree--; _iInUsed++;
+					   // 先計算在累加
+		int n = (int)(_fElpasedTime * _iNumParticles); // 到目前為止應該產生的分子個數
+		if (n > _iGenParticles) {  // 產生的分子個數不足，產生到 n 個分子
+			for (int i = 0; i < n - _iGenParticles; i++) {
+				// 根據 Emitter 的相關參數，設定所產生分子的參數
+				if (_iFree != 0) {
+					get = _FreeList.front();
+					get->setBehavior(EMITTER_DEFAULT);
+					get->setVelocity(_fVelocity);
+					get->setLifetime(_fLifeTime);
+					get->setGravity(_fGravity);
+					get->setPosition(_emitterPt);
+					get->setColor(Color3B(_fRed, _fGreen, _fBlue));
+					get->setSpin(_fSpin);
+					get->setOpacity(_fOpacity);
+					get->setSize(0.125f);
+					get->setParticleName(_cName);
+					get->setWindDir(_fWindDir);
+					get->setWindStr(_fWindStr);
+					// 根據 _fSpread 與 _vDir 產生方向
+					float t = (rand() % 1001) / 1000.0f; // 產生介於 0 到 1 間的數
+					t = _fSpread - t * _fSpread * 2; //  產生的角度，轉成弧度
+					t = (_fDir + t)* M_PI / 180.0f;
+					Vec2 vdir(cosf(t), sinf(t));
+					get->setDirection(vdir);
+					_FreeList.pop_front();
+					_InUsedList.push_front(get);
+					_iFree--; _iInUsed++;
+				}
 			}
-			fireworkmode = 4;
+			_iGenParticles = n; // 目前已經產生 n 個分子
+
 		}
-			
-		else if (fireworkmode == 1)fireworkmode = 2;
-		
-		// 先計算在累加
-		//int n = (int)(_fElpasedTime * _iNumParticles); // 到目前為止應該產生的分子個數
-		//if (n > _iGenParticles) {  // 產生的分子個數不足，產生到 n 個分子
-		//	for (int i = 0; i < n - _iGenParticles; i++) {
-		//		// 根據 Emitter 的相關參數，設定所產生分子的參數
-		//		if (_iFree != 0) {
-		//			get = _FreeList.front();
-		//			get->setBehavior(EMITTER_DEFAULT);
-		//			get->setVelocity(_fVelocity);
-		//			get->setLifetime(_fLifeTime);
-		//			get->setGravity(_fGravity);
-		//			get->setPosition(_emitterPt);
-		//			get->setColor(Color3B(_fRed,_fGreen,_fBlue));
-		//			get->setSpin(_fSpin);
-		//			get->setOpacity(_fOpacity);
-		//			get->setSize(0.125f);
-		//			get->setParticleName(_cName);
-		//			// 根據 _fSpread 與 _vDir 產生方向
-		//			float t = (rand() % 1001) / 1000.0f; // 產生介於 0 到 1 間的數
-		//			t = _fSpread - t * _fSpread * 2; //  產生的角度，轉成弧度
-		//			t = ( _fDir + t )* M_PI / 180.0f;
-		//			Vec2 vdir(cosf(t), sinf(t));
-		//			get->setDirection(vdir);
-		//			_FreeList.pop_front();
-		//			_InUsedList.push_front(get);
-		//			_iFree--; _iInUsed++;
-		//		}
-		//	}
-		//	_iGenParticles = n; // 目前已經產生 n 個分子
-		//	
-		//}
 		if (_fElpasedTime >= 1.0f) {
 			_fElpasedTime -= 1.0f;
 			if (_iGenParticles >= _iNumParticles) _iGenParticles -= _iNumParticles;
 			else _iGenParticles = 0;
 		}
 		_fElpasedTime += dt;
-		
 	}
 
 	if (_iInUsed != 0) { // 有分子需要更新時
@@ -121,9 +85,6 @@ void CParticleSystem::doStep(float dt)
 			else it++;
 		}
 	}
-	else if (fireworkmode %2 ==0) {
-		fireworkmode = (fireworkmode+1)%4;
-	}	
 
 }
 
