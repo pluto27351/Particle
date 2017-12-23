@@ -10,9 +10,9 @@
 
 #define EMITTER_DEFAULT 99
 #define FIREWORK 100
-#define FIREWORK2 1002
 #define ROLL 101
 #define WATERBALL 102
+#define BOMB 103
 
 #include "cocos2d.h"
 
@@ -64,6 +64,7 @@ public:
 	void setWindDir(float s) { _fWindDir = s; }
 	void setWindStr(float s) { _fWindStr = s; }
 	void setRDelayTime(float t) { _fRDelayTime = t; }
+	void setDelayTime(float t) { _fDelayTime = t; }
 	void setEm(cocos2d::Point p) { _em = p; }
 };
 

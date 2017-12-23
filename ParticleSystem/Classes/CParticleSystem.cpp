@@ -79,7 +79,7 @@ void CParticleSystem::doStep(float dt)
 				break;
 			case FIREWORK:
 				if (_iFree != 0) {
-					if (em.y < _emitterPt.y) {
+					if (em.y <= _emitterPt.y) {
 						for (int i = 0; i < 55; i++) {
 							// 根據 Emitter 的相關參數，設定所產生分子的參數
 							if (_iFree != 0) {
@@ -167,7 +167,7 @@ void CParticleSystem::doStep(float dt)
 							get = _FreeList.front();
 							get->setBehavior(WATERBALL);
 							get->setVelocity(_fVelocity * 5);
-							get->setLifetime(0.5f);
+							get->setLifetime(0.7f);
 							get->setGravity(_fGravity);
 							get->setPosition(em);
 							get->setColor(Color3B(rand() % 255 + 1, rand() % 255 + 1, rand() % 255 + 1));
@@ -184,6 +184,67 @@ void CParticleSystem::doStep(float dt)
 							_iFree--; _iInUsed++;
 						}
 
+
+					}
+				}
+				break;
+			case BOMB:
+				if (_iFree != 0) {
+					if (_iInUsed == 0) {
+						em = _emitterPt + Vec2(0, 450);
+						_fSpread = 13;
+					}
+					else if (em.y > 100 && _fSpread < 15) {
+						// 根據 Emitter 的相關參數，設定所產生分子的參數
+						if (_iFree != 0) {
+							get = _FreeList.front();
+							get->setBehavior(EMITTER_DEFAULT);
+							get->setVelocity(3.5);
+							get->setLifetime(0.5);
+							get->setGravity(-1.4);
+							get->setPosition(em);
+							get->setColor(Color3B(255, 75, 75));
+							get->setSpin(0);
+							get->setOpacity(255);
+							get->setSize(0.125f);
+							get->setParticleName("spark.png");
+							get->setWindDir(0);
+							get->setWindStr(0);
+							// 根據 _fSpread 與 _vDir 產生方向
+							float t = (rand() % 1001) / 1000.0f; // 產生介於 0 到 1 間的數
+							t = _fSpread - t * _fSpread * 2; //  產生的角度，轉成弧度
+							t = (90 + t)* M_PI / 180.0f;
+							Vec2 vdir(cosf(t), sinf(t));
+							get->setDirection(vdir);
+							_FreeList.pop_front();
+							_InUsedList.push_front(get);
+							_iFree--; _iInUsed++;
+						}
+						em.y -= 6;
+					}
+					else if ((em.y < 100 && _fSpread < 15)) {
+						em.y = 100; _fSpread = 20;
+						for (int i = 0; i < 150; i++) {
+							// 根據 Emitter 的相關參數，設定所產生分子的參數
+							if (_iFree != 0) {
+								get = _FreeList.front();
+								get->setBehavior(BOMB);
+								get->setLifetime(4);
+								get->setPosition(em + Vec2(i-75, 0));
+								//get->setColor(Color3B(255,94,68));
+								//get->setDelayTime((1-_fElpasedTime));
+								get->setSize(0.5f);
+								get->setParticleName("cloud.png");
+								// 根據 _fSpread 與 _vDir 產生方向
+								float k = (i / 5.0f * 4.0f + 30.0f);
+								float t = k* M_PI / 180.0f;
+								Vec2 vdir(cosf(t), 0.5);
+								get->setDirection(vdir);
+								_FreeList.pop_front();
+								_InUsedList.push_front(get);
+								_iFree--; _iInUsed++;
+							}
+						}
 
 					}
 				}
@@ -205,8 +266,9 @@ void CParticleSystem::doStep(float dt)
 			else it++;
 		}
 	}
-
+	CCLOG("%f", _fElpasedTime);
 }
+
 
 void CParticleSystem::setGravity(float fGravity)
 {

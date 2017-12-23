@@ -232,7 +232,7 @@ void  ParticleSystemScene::onTouchEnded(cocos2d::Touch *pTouch, cocos2d::Event *
 	if (_bEmitterOn) {
 		if( _EmitterSprite->touchesEnded(touchLoc) ) 
 			_ParticleControl._emitterPt = _EmitterSprite->getLoc();
-			_ParticleControl.em = _ParticleControl._emitterPt - Vec2(0,450);
+			//_ParticleControl.em = _ParticleControl._emitterPt - Vec2(0,450);
 	}
 	// 點在 Emitter 切換的圖示上，進行必要的狀態改變
 	if (_emitterSwitchBtn->touchesEnded(touchLoc))
@@ -241,7 +241,17 @@ void  ParticleSystemScene::onTouchEnded(cocos2d::Touch *pTouch, cocos2d::Event *
 		if ( _bEmitterOn ) { // 顯示 Emitter 圖示
 			_EmitterSprite->setVisible(true);
 			_ParticleControl.em = _ParticleControl._emitterPt;
-			_ParticleControl._iType += 99;
+			if(_ParticleControl._iType<99) _ParticleControl._iType += 99;
+			switch (_ParticleControl._iType) {
+			case FIREWORK:
+				_ParticleControl.em = _ParticleControl._emitterPt - Vec2(0, 450);
+				break;
+			case BOMB:
+				_ParticleControl.em = _ParticleControl._emitterPt + Vec2(0, 450);
+				_ParticleControl._fSpread = 13.0f;
+				_ParticleControl._fElpasedTime = 0;
+				break;
+			}
 		}
 		else { // 關閉 Emitter 圖示
 			_EmitterSprite->setVisible(false);
@@ -440,7 +450,17 @@ void ParticleSystemScene::TypeEvent(cocos2d::Ref* sender, cocos2d::ui::Slider::E
 		int iType = percent/20; // 0 到 360 之間
 		_TypeBMValue->setString(StringUtils::format("%2d", iType));
 		if(_bEmitterOn){ 
-			_ParticleControl.setType(iType+99);
+			_ParticleControl.setType(iType + 99);
+			switch (iType + 99) {
+				case FIREWORK:
+					_ParticleControl.em = _ParticleControl._emitterPt - Vec2(0, 450);
+					break;
+				case BOMB:
+					_ParticleControl.em = _ParticleControl._emitterPt + Vec2(0, 450);
+					_ParticleControl._fSpread = 13.0f;
+					_ParticleControl._fElpasedTime = 0;
+					break;
+			}
 		}
 		else { _ParticleControl.setType(iType); }
 	}
