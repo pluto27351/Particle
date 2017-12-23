@@ -16,7 +16,7 @@ private:
 	list<CParticle*> _InUsedList;
 	int _iFree;	// 可用的  Particle 個數
 	int _iInUsed;  // 正在使用的 Particle 個數
-	
+	cocos2d::Point vdir;
 
 	bool _bEmitterOn; // Emitter 是否顯示
 	int fireworkmode = 1;

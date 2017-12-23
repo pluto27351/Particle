@@ -207,14 +207,15 @@ bool CParticle::doStep(float dt)
 			cost = cosf(M_PI_2*_fElapsedTime / _fLifeTime);
 			_Particle->setScale(_fSize + sint * 1.5f);
 			_Particle->setOpacity(_fOpacity * cost);
+			//_Particle->setColor(Color3B(INTENSITY(_color.r*(1 + sint)), INTENSITY(_color.g*(1 + sint)), INTENSITY(_color.b*(1 + sint))));
 			_Particle->setColor(_color);
-			_Pos.x += _Direction.x * _fVelocity * dt * PIXEL_PERM;
+			_Pos.x += _Direction.x * _fVelocity * dt * PIXEL_PERM/3;
 			float tt = GRAVITY_Y(_fElapsedTime, dt, _fGravity);
-			_Pos.y += (_Direction.y * _fVelocity + tt)* dt * PIXEL_PERM;
+			_Pos.y += (_Direction.y * _fVelocity + tt)* dt * PIXEL_PERM+5;
 			_Particle->setPosition(_Pos);
 		}
 		break;
-	case ROLL:
+	case FIREWORK2:
 		if (!_bVisible && _fElapsedTime >= _fDelayTime) {
 			_fElapsedTime = _fElapsedTime - _fDelayTime; // 重新開始計時
 			_bVisible = true;
@@ -228,6 +229,8 @@ bool CParticle::doStep(float dt)
 			return true; // 分子生命週期已經結束
 		}
 		else {
+			float wind = (1.0f + sin(_fElapsedTime))*_fWindStr*_fElapsedTime * 3;
+			Vec2 winddir(sinf(_fWindDir)*wind, cosf(_fWindDir)*wind);
 			sint = sinf(M_PI*_fElapsedTime / _fLifeTime);
 			cost = cosf(M_PI_2*_fElapsedTime / _fLifeTime);
 			_Particle->setScale(_fSize + sint * 1.5f);
@@ -237,10 +240,79 @@ bool CParticle::doStep(float dt)
 			_Pos.x += _Direction.x * _fVelocity * dt * PIXEL_PERM;
 			float tt = GRAVITY_Y(_fElapsedTime, dt, _fGravity);
 			_Pos.y += (_Direction.y * _fVelocity + tt)* dt * PIXEL_PERM;
+			_Particle->setPosition(_Pos + winddir);
+		}
+		break;
+	case ROLL:
+		if (!_bVisible && _fElapsedTime >= _fDelayTime) {
+			_fElapsedTime = _fElapsedTime - _fDelayTime; // 重新開始計時
+			_bVisible = true;
+			_Particle->setVisible(_bVisible);
+			_Particle->setColor(_color);
 			_Particle->setPosition(_Pos);
+			_Particle->setOpacity(255);
+		}
+		else if (_fElapsedTime > _fLifeTime) {
+			_bVisible = false;
+			_Particle->setVisible(_bVisible);
+			return true; // 分子生命週期已經結束
+		}
+		else {
+			float wind = (1.0f + sin(_fElapsedTime))*_fWindStr*_fElapsedTime * 3;
+			Vec2 winddir(sinf(_fWindDir)*wind, cosf(_fWindDir)*wind);
+			sint = sinf(M_PI*_fElapsedTime / _fLifeTime);
+			cost = cosf(M_PI_2*_fElapsedTime / _fLifeTime);
+			_Particle->setScale(_fSize + sint * 1.5f);
+			_Particle->setOpacity(_fOpacity * cost);
+			//_Particle->setColor(Color3B(INTENSITY(_color.r*(1 + sint)), INTENSITY(_color.g*(1 + sint)), INTENSITY(_color.b*(1 + sint))));
+			_Particle->setColor(_color);
+			_Pos.x += _Direction.x * _fVelocity * dt * PIXEL_PERM;
+			float tt = GRAVITY_Y(_fElapsedTime, dt, _fGravity);
+			_Pos.y += (_Direction.y * _fVelocity + tt)* dt * PIXEL_PERM;
+			_Particle->setPosition(_Pos + winddir);
+		}
+		break;
+	case WATERBALL:
+		if (!_bVisible && _fElapsedTime >= _fRDelayTime) {
+			_fElapsedTime = 0; // 重新開始計時
+			_bVisible = true;
+			_Particle->setVisible(_bVisible);
+			_Particle->setColor(_color);
+			_Particle->setPosition(_Pos);
+			_Particle->setOpacity(255);
+		}
+		else if (_fElapsedTime > _fLifeTime) {
+			_bVisible = false;
+			_Particle->setVisible(_bVisible);
+			return true; // 分子生命週期已經結束
+		}
+		else if(_bVisible){
+			sint = sinf(M_PI*_fElapsedTime / _fLifeTime);
+			cost = cosf(M_PI_2*(_fElapsedTime) / _fLifeTime);
+			_Particle->setColor(_color);
+			if (_fElapsedTime > 0.4) {
+				_Particle->setScale(_fSize + sint *2.0f);
+				_Pos.x -= _Direction.x * _fVelocity * dt * PIXEL_PERM/1.5;
+				float tt = GRAVITY_Y(_fElapsedTime, dt, _fGravity);
+				_Pos.y -= (_Direction.y * _fVelocity + tt)* dt * PIXEL_PERM / 1.5;
+				_Particle->setPosition(_Pos );
+			}
+			else {
+				_Particle->setScale(_fSize + sint / 3.0f*2.0f);
+				_Pos.x -= _Direction.x * _fVelocity * dt * PIXEL_PERM;
+				float tt = GRAVITY_Y(_fElapsedTime, dt, _fGravity);
+				_Pos.y -= (_Direction.y * _fVelocity + tt)* dt * PIXEL_PERM;
+	/*			float r = atan2f(_Direction.y, _Direction.x);
+				r = (270 - r) * M_PI / 180;
+				float t = _fElapsedTime * 10;
+				_Pos.x = (270 - t)*sin(270 - t) + t*sin(t) - _Pos.x;
+				_Pos.y = (270 - t)*cos(270 - t) + t*cos(t) - _Pos.y;*/
+				_Particle->setPosition(_Pos);
+			}
 		}
 		break;
 	}
+
 	float degree = _fSpin * _fElapsedTime;
 	_Particle->setRotation(degree);
 	// 累加時間
@@ -359,14 +431,31 @@ void CParticle::setBehavior(int iType)
 		_Particle->setScale(_fSize);
 		break;
 	case FIREWORK:
-		_fVelocity = 3.5;
-		_fLifeTime = 2;
-		_fGravity = -1.4;
-		_color = (Color3B(255, 75, 75));
-		_fSpin = 0;
-		_fSize = 0.125f;
-		_fWindDir = 0;
-		_fWindStr = 0;
+		_fIntensity = 1;
+		_fOpacity = 255;
+		_fSize = 1;
+		_color = Color3B(rand() % 128, rand() % 128, 128 + rand() % 128);
+		_fElapsedTime = 0;
+		_fDelayTime = 0;
+		_Particle->setScale(_fSize);
+		break;
+	case ROLL:
+		_fIntensity = 1;
+		_fOpacity = 255;
+		_fSize = 1;
+		_color = Color3B(rand() % 128, rand() % 128, 128 + rand() % 128);
+		_fElapsedTime = 0;
+		_fDelayTime = 0;
+		_Particle->setScale(_fSize);
+		break;
+	case WATERBALL:
+		_fIntensity = 1;
+		_fOpacity = 255;
+		_fSize = 1;
+		_color = Color3B(rand() % 128, rand() % 128, 128 + rand() % 128);
+		_fElapsedTime = 0;
+		//_fDelayTime = rand() % 100 / 1000.0f;
+		_Particle->setScale(_fSize);
 		break;
 	}
 }

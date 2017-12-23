@@ -10,6 +10,7 @@
 
 #define EMITTER_DEFAULT 99
 #define FIREWORK 100
+#define FIREWORK2 1002
 #define ROLL 101
 #define WATERBALL 102
 
@@ -22,6 +23,7 @@ private:
 	cocos2d::Point  _OldPos;		// 分子前一個位置
 	cocos2d::Point  _Pos;			// 分子目前的位置
 	cocos2d::Point  _Direction;	// 分子目前的運動方向，單位向量
+	cocos2d::Point  _em;
 
 	float _fVelocity;	// 分子的速度
 	float _fLifeTime;	// 生命週期
@@ -36,6 +38,7 @@ private:
 	// 時間
 	float _fElapsedTime; // 分子從顯示到目前為止的時間
 	float _fDelayTime;	 // 分子顯示前的延遲時間
+	float _fRDelayTime;	 // 分子顯示前的延遲時間
 	// 行為模式
 	int _iType;
 	// 顯示與否
@@ -60,6 +63,8 @@ public:
 	void setSpin(float s) { _fSpin = s; }
 	void setWindDir(float s) { _fWindDir = s; }
 	void setWindStr(float s) { _fWindStr = s; }
+	void setRDelayTime(float t) { _fRDelayTime = t; }
+	void setEm(cocos2d::Point p) { _em = p; }
 };
 
 #endif

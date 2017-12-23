@@ -533,6 +533,17 @@
             <PreSize X="0.0117" Y="0.0431" />
             <LabelBMFontFile_CNB Type="Normal" Path="couriernew32.fnt" Plist="" />
           </AbstractNodeData>
+          <AbstractNodeData Name="emitterpos_0" ActionTag="-330304257" Tag="46" IconVisible="False" LeftMargin="113.0000" RightMargin="1093.0000" TopMargin="383.0000" BottomMargin="263.0000" ctype="SpriteObjectData">
+            <Size X="74.0000" Y="74.0000" />
+            <AnchorPoint ScaleX="0.5000" ScaleY="0.5000" />
+            <Position X="150.0000" Y="300.0000" />
+            <Scale ScaleX="1.0000" ScaleY="1.0000" />
+            <CColor A="255" R="255" G="255" B="255" />
+            <PrePosition X="0.1172" Y="0.4167" />
+            <PreSize X="0.0578" Y="0.1028" />
+            <FileData Type="PlistSubImage" Path="emittericon1.png" Plist="particletexture.plist" />
+            <BlendFunc Src="1" Dst="771" />
+          </AbstractNodeData>
         </Children>
       </ObjectData>
     </Content>

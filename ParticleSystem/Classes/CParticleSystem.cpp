@@ -34,43 +34,51 @@ void CParticleSystem::doStep(float dt)
 	list <CParticle *>::iterator it;
 	if (_bEmitterOn) { // 根據 Emitter 設定的相關參數，產生相對應的分子
 					   // 先計算在累加
-		int n = (int)(_fElpasedTime * _iNumParticles); // 到目前為止應該產生的分子個數
 		switch (_iType) {
 			case EMITTER_DEFAULT:
-				if (n > _iGenParticles) {  // 產生的分子個數不足，產生到 n 個分子
-					for (int i = 0; i < n - _iGenParticles; i++) {
-						// 根據 Emitter 的相關參數，設定所產生分子的參數
-						if (_iFree != 0) {
-							get = _FreeList.front();
-							get->setBehavior(EMITTER_DEFAULT);
-							get->setVelocity(_fVelocity);
-							get->setLifetime(_fLifeTime);
-							get->setGravity(_fGravity);
-							get->setPosition(_emitterPt);
-							get->setColor(Color3B(_fRed, _fGreen, _fBlue));
-							get->setSpin(_fSpin);
-							get->setOpacity(_fOpacity);
-							get->setSize(0.125f);
-							get->setParticleName(_cName);
-							get->setWindDir(_fWindDir);
-							get->setWindStr(_fWindStr);
-							// 根據 _fSpread 與 _vDir 產生方向
-							float t = (rand() % 1001) / 1000.0f; // 產生介於 0 到 1 間的數
-							t = _fSpread - t * _fSpread * 2; //  產生的角度，轉成弧度
-							t = (_fDir + t)* M_PI / 180.0f;
-							Vec2 vdir(cosf(t), sinf(t));
-							get->setDirection(vdir);
-							_FreeList.pop_front();
-							_InUsedList.push_front(get);
-							_iFree--; _iInUsed++;
+				if (_iFree != 0) {
+					int n = (int)(_fElpasedTime * _iNumParticles); // 到目前為止應該產生的分子個數
+					if (n > _iGenParticles) {  // 產生的分子個數不足，產生到 n 個分子
+						for (int i = 0; i < n - _iGenParticles; i++) {
+							// 根據 Emitter 的相關參數，設定所產生分子的參數
+							if (_iFree != 0) {
+								get = _FreeList.front();
+								get->setBehavior(EMITTER_DEFAULT);
+								get->setVelocity(_fVelocity);
+								get->setLifetime(_fLifeTime);
+								get->setGravity(_fGravity);
+								get->setPosition(_emitterPt);
+								get->setColor(Color3B(_fRed, _fGreen, _fBlue));
+								get->setSpin(_fSpin);
+								get->setOpacity(_fOpacity);
+								get->setSize(0.125f);
+								get->setParticleName(_cName);
+								get->setWindDir(_fWindDir);
+								get->setWindStr(_fWindStr);
+								// 根據 _fSpread 與 _vDir 產生方向
+								float t = (rand() % 1001) / 1000.0f; // 產生介於 0 到 1 間的數
+								t = _fSpread - t * _fSpread * 2; //  產生的角度，轉成弧度
+								t = (_fDir + t)* M_PI / 180.0f;
+								Vec2 vdir(cosf(t), sinf(t));
+								get->setDirection(vdir);
+								_FreeList.pop_front();
+								_InUsedList.push_front(get);
+								_iFree--; _iInUsed++;
+							}
 						}
-					}
-					_iGenParticles = n; // 目前已經產生 n 個分子
+						_iGenParticles = n; // 目前已經產生 n 個分子
 
+						if (_fElpasedTime >= 1.0f) {
+							_fElpasedTime -= 1.0f;
+							if (_iGenParticles >= _iNumParticles) _iGenParticles -= _iNumParticles;
+							else _iGenParticles = 0;
+						}
+
+					}
 				}
 				break;
 			case FIREWORK:
-				if (n > _iGenParticles) {  // 產生的分子個數不足，產生到 n 個分子
+				if (_iFree != 0) {
 					if (em.y < _emitterPt.y) {
 						for (int i = 0; i < 55; i++) {
 							// 根據 Emitter 的相關參數，設定所產生分子的參數
@@ -99,7 +107,7 @@ void CParticleSystem::doStep(float dt)
 								_iFree--; _iInUsed++;
 							}
 						}
-						em.y += 3;
+						em.y += 6;
 					}
 					else {
 						if (_iFree > 100) {
@@ -113,29 +121,25 @@ void CParticleSystem::doStep(float dt)
 								_InUsedList.push_front(get);
 								_iFree--; _iInUsed++;
 							}
-							em = _emitterPt-Vec2(0,450);
+							em = _emitterPt - Vec2(0, 450);
 						}
-
 					}
-					_iGenParticles = n; // 目前已經產生 n 個分子
-
 				}
 				break;
-			case ROLL:
-				if(n > _iGenParticles) {  // 產生的分子個數不足，產生到 n 個分子
-					float t = _totalTime* M_PI / 180.0f*750;
-					Vec2 vdir = Vec2(cosf(t), sinf(t));
+			case ROLL:		
+				if (_iFree != 0) {
+					float t = _totalTime* M_PI / 180.0f * 750;
+					vdir = Vec2(cosf(t), sinf(t));
 					em = _emitterPt + 50 * vdir;
-					for (int i = 0; i < n - _iGenParticles; i++) {
 						// 根據 Emitter 的相關參數，設定所產生分子的參數
 						if (_iFree != 0) {
 							get = _FreeList.front();
-							get->setBehavior(EMITTER_DEFAULT);
+							get->setBehavior(ROLL);
 							get->setVelocity(_fVelocity);
 							get->setLifetime(_fLifeTime);
 							get->setGravity(_fGravity);
 							get->setPosition(em);
-							get->setColor(Color3B(_fRed, _fGreen, _fBlue));
+							get->setColor(Color3B(rand() % 255 + 1, rand() % 255 + 1, rand() % 255 + 1));
 							get->setSpin(_fSpin);
 							get->setOpacity(_fOpacity);
 							get->setSize(0.125f);
@@ -144,27 +148,48 @@ void CParticleSystem::doStep(float dt)
 							get->setWindStr(_fWindStr);
 							// 根據 _fSpread 與 _vDir 產生方向
 							float t = (rand() % 1001) / 1000.0f; // 產生介於 0 到 1 間的數
-							
+
 							get->setDirection(vdir);
 							_FreeList.pop_front();
 							_InUsedList.push_front(get);
 							_iFree--; _iInUsed++;
 						}
-					}
-					_iGenParticles = n; // 目前已經產生 n 個分子
-
 				}
 				break;
 			case WATERBALL:
+				if (_iFree != 0) {
+					float t = _totalTime * M_PI / 180.0f * 1000;
+					Vec2 vfdir = Vec2(cosf(t), sinf(t));
+					em = _emitterPt + 150 * vfdir;
+					for (int i = 0; i < 10; i++) {
+						// 根據 Emitter 的相關參數，設定所產生分子的參數
+						if (_iFree != 0) {
+							get = _FreeList.front();
+							get->setBehavior(WATERBALL);
+							get->setVelocity(_fVelocity * 5);
+							get->setLifetime(0.5f);
+							get->setGravity(_fGravity);
+							get->setPosition(em);
+							get->setColor(Color3B(rand() % 255 + 1, rand() % 255 + 1, rand() % 255 + 1));
+							get->setSpin(_fSpin);
+							get->setOpacity(_fOpacity);
+							get->setSize(0.05f);
+							get->setEm(_emitterPt);
+							get->setParticleName(_cName);
+							get->setRDelayTime(0.05f*i);
+							// 根據 _fSpread 與 _vDir 產生方向
+							get->setDirection(vfdir);
+							_FreeList.pop_front();
+							_InUsedList.push_front(get);
+							_iFree--; _iInUsed++;
+						}
+
+
+					}
+				}
 				break;
 		}
 
-
-		if (_fElpasedTime >= 1.0f) {
-			_fElpasedTime -= 1.0f;
-			if (_iGenParticles >= _iNumParticles) _iGenParticles -= _iNumParticles;
-			else _iGenParticles = 0;
-		}
 		_fElpasedTime += dt;
 		_totalTime += dt;
 	}
