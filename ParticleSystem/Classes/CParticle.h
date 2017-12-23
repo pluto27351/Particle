@@ -9,6 +9,10 @@
 #define BUTTERFLYSHAPE	5		// 噴射出蝴蝶外型的煙火
 
 #define EMITTER_DEFAULT 99
+#define FIREWORK 100
+#define ROLL 101
+#define WATERBALL 102
+
 #include "cocos2d.h"
 
 class CParticle

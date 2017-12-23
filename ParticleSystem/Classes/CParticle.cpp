@@ -189,6 +189,57 @@ bool CParticle::doStep(float dt)
 			_Particle->setPosition(_Pos+ winddir);
 		}
 		break;
+	case FIREWORK:
+		if (!_bVisible && _fElapsedTime >= _fDelayTime) {
+			_fElapsedTime = _fElapsedTime - _fDelayTime; // 重新開始計時
+			_bVisible = true;
+			_Particle->setVisible(_bVisible);
+			_Particle->setColor(_color);
+			_Particle->setPosition(_Pos);
+		}
+		else if (_fElapsedTime > _fLifeTime) {
+			_bVisible = false;
+			_Particle->setVisible(_bVisible);
+			return true; // 分子生命週期已經結束
+		}
+		else {
+			sint = sinf(M_PI*_fElapsedTime / _fLifeTime);
+			cost = cosf(M_PI_2*_fElapsedTime / _fLifeTime);
+			_Particle->setScale(_fSize + sint * 1.5f);
+			_Particle->setOpacity(_fOpacity * cost);
+			_Particle->setColor(_color);
+			_Pos.x += _Direction.x * _fVelocity * dt * PIXEL_PERM;
+			float tt = GRAVITY_Y(_fElapsedTime, dt, _fGravity);
+			_Pos.y += (_Direction.y * _fVelocity + tt)* dt * PIXEL_PERM;
+			_Particle->setPosition(_Pos);
+		}
+		break;
+	case ROLL:
+		if (!_bVisible && _fElapsedTime >= _fDelayTime) {
+			_fElapsedTime = _fElapsedTime - _fDelayTime; // 重新開始計時
+			_bVisible = true;
+			_Particle->setVisible(_bVisible);
+			_Particle->setColor(_color);
+			_Particle->setPosition(_Pos);
+		}
+		else if (_fElapsedTime > _fLifeTime) {
+			_bVisible = false;
+			_Particle->setVisible(_bVisible);
+			return true; // 分子生命週期已經結束
+		}
+		else {
+			sint = sinf(M_PI*_fElapsedTime / _fLifeTime);
+			cost = cosf(M_PI_2*_fElapsedTime / _fLifeTime);
+			_Particle->setScale(_fSize + sint * 1.5f);
+			_Particle->setOpacity(_fOpacity * cost);
+			//_Particle->setColor(Color3B(INTENSITY(_color.r*(1 + sint)), INTENSITY(_color.g*(1 + sint)), INTENSITY(_color.b*(1 + sint))));
+			_Particle->setColor(_color);
+			_Pos.x += _Direction.x * _fVelocity * dt * PIXEL_PERM;
+			float tt = GRAVITY_Y(_fElapsedTime, dt, _fGravity);
+			_Pos.y += (_Direction.y * _fVelocity + tt)* dt * PIXEL_PERM;
+			_Particle->setPosition(_Pos);
+		}
+		break;
 	}
 	float degree = _fSpin * _fElapsedTime;
 	_Particle->setRotation(degree);
@@ -306,6 +357,16 @@ void CParticle::setBehavior(int iType)
 		_fElapsedTime = 0;
 		_fDelayTime = 0;
 		_Particle->setScale(_fSize);
+		break;
+	case FIREWORK:
+		_fVelocity = 3.5;
+		_fLifeTime = 2;
+		_fGravity = -1.4;
+		_color = (Color3B(255, 75, 75));
+		_fSpin = 0;
+		_fSize = 0.125f;
+		_fWindDir = 0;
+		_fWindStr = 0;
 		break;
 	}
 }

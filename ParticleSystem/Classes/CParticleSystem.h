@@ -16,13 +16,16 @@ private:
 	list<CParticle*> _InUsedList;
 	int _iFree;	// ノ  Particle 计
 	int _iInUsed;  // タㄏノ Particle 计
-	int _iType;  // ヘ玡北だ笲笆家Α琌贺篈
+	
 
 	bool _bEmitterOn; // Emitter 琌陪ボ
 	int fireworkmode = 1;
+	
 public:
 	// Emitter 砞﹚闽把计
 	cocos2d::Point _emitterPt;// Emitter 竚	
+	cocos2d::Point em;
+	int _iType=0;  // ヘ玡北だ笲笆家Α琌贺篈
 	float    _fDir; // Emitter 糛甮よ0  360癴皐よタ
 	int		_iNumParticles;	// –牧玻ネだ计
 	int     _iGenParticles; // ヘ玡ゎ┮玻ネだ计(–虫)
@@ -37,6 +40,7 @@ public:
 	float   _fWindStr;
 	float   _fWindDir;
 	char    *_cName;
+	float _totalTime=0;
 	//cocos2d::Point _windDir;  // よセ絛ㄒ⊿Τ龟
 
 	CParticleSystem();

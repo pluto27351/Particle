@@ -232,16 +232,20 @@ void  ParticleSystemScene::onTouchEnded(cocos2d::Touch *pTouch, cocos2d::Event *
 	if (_bEmitterOn) {
 		if( _EmitterSprite->touchesEnded(touchLoc) ) 
 			_ParticleControl._emitterPt = _EmitterSprite->getLoc();
+			_ParticleControl.em = _ParticleControl._emitterPt - Vec2(0,450);
 	}
 	// 點在 Emitter 切換的圖示上，進行必要的狀態改變
 	if (_emitterSwitchBtn->touchesEnded(touchLoc))
 	{
 		_bEmitterOn = _emitterSwitchBtn->getStatus();
 		if ( _bEmitterOn ) { // 顯示 Emitter 圖示
-			_EmitterSprite->setVisible(true);			
+			_EmitterSprite->setVisible(true);
+			_ParticleControl.em = _ParticleControl._emitterPt;
+			_ParticleControl._iType += 99;
 		}
 		else { // 關閉 Emitter 圖示
 			_EmitterSprite->setVisible(false);
+			_ParticleControl._iType -= 99;
 		}
 		_ParticleControl.setEmitter(_bEmitterOn); // 更新控制系統中的 Emitter 狀態
 	}
@@ -435,6 +439,9 @@ void ParticleSystemScene::TypeEvent(cocos2d::Ref* sender, cocos2d::ui::Slider::E
 		int maxPercent = slider->getMaxPercent();
 		int iType = percent/20; // 0 到 360 之間
 		_TypeBMValue->setString(StringUtils::format("%2d", iType));
-		_ParticleControl.setType(iType);
+		if(_bEmitterOn){ 
+			_ParticleControl.setType(iType+99);
+		}
+		else { _ParticleControl.setType(iType); }
 	}
 }
