@@ -400,6 +400,72 @@ void CParticleSystem::onTouchesBegan(const cocos2d::CCPoint &touchPoint)
 		}
 		else return;// 沒有分子, 所以就不提供
 		break;
+	case THUNDER:
+		// 從 _FreeList 取得一個分子給放到 _InUsed
+		if (_iFree > 60) {
+			float r = rand()%51-25;
+			r = r*M_PI/180;
+			int k = rand() % 2*2-1;
+			for (int i = 0; i < 60; i++) {
+				Vec2 move = Vec2(0, 450);
+				if (i < 20) {
+					move.x -= (100 / 20 * i)*k;
+					move.y -= (150 / 20 * i );
+				}
+				else if (i < 40) {
+					move.x += (-100 +(200 / 20 * (i-19)))*k;
+					move.y -= (150 + (75 / 20 * (i - 19)));
+				}
+				else {
+					move.x -= (-90 + (100 / 20 * (i - 39)))*k;
+					move.y -= (213 + (225 / 20 * (i - 39)));
+				}
+				move.x = cosf(r)*move.x + sinf(r)*move.y;
+				move.y = -sinf(r)*move.x + cosf(r)*move.y;
+				get = _FreeList.front();
+				get->setBehavior(THUNDER);
+				get->setPosition(touchPoint + move);
+				get->setGravity(_fGravity);
+				get->setRDelayTime((float)i/150);
+				get->setSize(4-(float)i/16);
+				get->setDelayTime(0);
+				_FreeList.pop_front();
+				_InUsedList.push_front(get);
+				_iFree--; _iInUsed++;
+			}
+		}
+		else return;// 沒有分子, 所以就不提供
+		break;
+	case MAGIC:
+		// 從 _FreeList 取得一個分子給放到 _InUsed
+		if (_iFree > 150) {
+			for (int i = 0; i < 150; i++) {
+				get = _FreeList.front();
+				get->setBehavior(BUTTERFLYSHAPE);
+				get->setPosition(touchPoint);
+				get->setGravity(_fGravity);
+				_FreeList.pop_front();
+				_InUsedList.push_front(get);
+				_iFree--; _iInUsed++;
+			}
+		}
+		else return;// 沒有分子, 所以就不提供
+		break;
+	case BALLOON:
+		// 從 _FreeList 取得一個分子給放到 _InUsed
+		if (_iFree > 150) {
+			for (int i = 0; i < 150; i++) {
+				get = _FreeList.front();
+				get->setBehavior(BUTTERFLYSHAPE);
+				get->setPosition(touchPoint);
+				get->setGravity(_fGravity);
+				_FreeList.pop_front();
+				_InUsedList.push_front(get);
+				_iFree--; _iInUsed++;
+			}
+		}
+		else return;// 沒有分子, 所以就不提供
+		break;
 	}
 }
 

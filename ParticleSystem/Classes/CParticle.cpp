@@ -161,6 +161,81 @@ bool CParticle::doStep(float dt)
 			_Particle->setPosition(_Pos);
 		}
 		break;
+	case THUNDER:
+		if (!_bVisible && _fElapsedTime >= _fRDelayTime) {
+			_fElapsedTime = 0; // 重新開始計時
+			_bVisible = true;
+			_Particle->setVisible(_bVisible);
+			_Particle->setColor(_color);
+			_Particle->setPosition(_Pos);
+			_Particle->setOpacity(255);
+		}
+		else if (_fElapsedTime > _fLifeTime) {
+			_bVisible = false;
+			_Particle->setVisible(_bVisible);
+			return true; // 分子生命週期已經結束
+		}
+		else {
+			sint = sinf(M_PI*_fElapsedTime / _fLifeTime);
+			cost = cosf(M_PI_2*_fElapsedTime / _fLifeTime);
+			_Particle->setScale(_fSize + sint * 1.5f);
+			_Particle->setOpacity(_fOpacity * cost);
+			_Particle->setColor(_color);
+			_Particle->setPosition(_Pos);
+		}
+		break;
+	case MAGIC:
+		if (!_bVisible && _fElapsedTime >= _fDelayTime) {
+			_fElapsedTime = _fElapsedTime - _fDelayTime; // 重新開始計時
+			_bVisible = true;
+			_Particle->setVisible(_bVisible);
+			_Particle->setColor(_color);
+			_Particle->setPosition(_Pos);
+		}
+		else if (_fElapsedTime > _fLifeTime) {
+			_bVisible = false;
+			_Particle->setVisible(_bVisible);
+			return true; // 分子生命週期已經結束
+		}
+		else {
+			// 根據心型公式，計算每一個分子的終止位置
+			sint = sinf(M_PI*_fElapsedTime / _fLifeTime);
+			cost = cosf(M_PI_2*_fElapsedTime / _fLifeTime);
+			_Particle->setScale(1.25 + (1 - cost)*2.0);
+			_Particle->setOpacity(_fOpacity * cost);
+			_Particle->setColor(_color);
+			_Pos.x += _Direction.x * cost * _fVelocity * dt * PIXEL_PERM;
+			float tt = GRAVITY_Y(_fElapsedTime, dt, _fGravity);
+			_Pos.y += (_Direction.y * cost * _fVelocity + tt)* dt * PIXEL_PERM;
+			_Particle->setPosition(_Pos);
+		}
+		break;
+	case BALLOON:
+		if (!_bVisible && _fElapsedTime >= _fDelayTime) {
+			_fElapsedTime = _fElapsedTime - _fDelayTime; // 重新開始計時
+			_bVisible = true;
+			_Particle->setVisible(_bVisible);
+			_Particle->setColor(_color);
+			_Particle->setPosition(_Pos);
+		}
+		else if (_fElapsedTime > _fLifeTime) {
+			_bVisible = false;
+			_Particle->setVisible(_bVisible);
+			return true; // 分子生命週期已經結束
+		}
+		else {
+			// 根據心型公式，計算每一個分子的終止位置
+			sint = sinf(M_PI*_fElapsedTime / _fLifeTime);
+			cost = cosf(M_PI_2*_fElapsedTime / _fLifeTime);
+			_Particle->setScale(1.25 + (1 - cost)*2.0);
+			_Particle->setOpacity(_fOpacity * cost);
+			_Particle->setColor(_color);
+			_Pos.x += _Direction.x * cost * _fVelocity * dt * PIXEL_PERM;
+			float tt = GRAVITY_Y(_fElapsedTime, dt, _fGravity);
+			_Pos.y += (_Direction.y * cost * _fVelocity + tt)* dt * PIXEL_PERM;
+			_Particle->setPosition(_Pos);
+		}
+		break;
 	case EMITTER_DEFAULT:
 		if (!_bVisible && _fElapsedTime >= _fDelayTime) {
 			_fElapsedTime = _fElapsedTime - _fDelayTime; // 重新開始計時
@@ -405,6 +480,52 @@ void CParticle::setBehavior(int iType)
 		_fGravity = 0;
 		break;
 	case BUTTERFLYSHAPE:
+		_fVelocity = 6.5f;
+		t = 2.0f * M_PI * (rand() % 1000) / 1000.0f;
+		sint = sinf(t);  cost = cosf(t); cos4t = cosf(4 * t); sin12t = sin(t / 12.0f);
+		_Direction.x = sint*(expf(cost) - 2 * cos4t - powf(sin12t, 5));
+		_Direction.y = cost*(expf(cost) - 2 * cos4t - powf(sin12t, 5));
+		_fLifeTime = 1.5f + LIFE_NOISE(0.15f);
+		_fIntensity = 1;
+		_fOpacity = 255;
+		_fSpin = 0;
+		_fSize = 1;
+		_color = Color3B(128 + rand() % 128, 128 + rand() % 128, 128 + rand() % 128);
+		//_color = Color3B(255, 255, 255);
+		_fElapsedTime = 0;
+		_fDelayTime = rand() % 100 / 1000.0f;
+		_fGravity = 0;
+		break;
+	case THUNDER:
+		_fVelocity = 1.0f;
+		_Direction = Vec2(-4, -3);
+		_fLifeTime = 1;
+		_fIntensity = 1;
+		_fOpacity = 255;
+		_fSpin = 0;
+		//_fSize = 2;
+		_color = Color3B(0,58, 255);
+		_fElapsedTime = 0;
+		_fGravity = 0;
+		break;
+	case MAGIC:
+		_fVelocity = 6.5f;
+		t = 2.0f * M_PI * (rand() % 1000) / 1000.0f;
+		sint = sinf(t);  cost = cosf(t); cos4t = cosf(4 * t); sin12t = sin(t / 12.0f);
+		_Direction.x = sint*(expf(cost) - 2 * cos4t - powf(sin12t, 5));
+		_Direction.y = cost*(expf(cost) - 2 * cos4t - powf(sin12t, 5));
+		_fLifeTime = 1.5f + LIFE_NOISE(0.15f);
+		_fIntensity = 1;
+		_fOpacity = 255;
+		_fSpin = 0;
+		_fSize = 1;
+		_color = Color3B(128 + rand() % 128, 128 + rand() % 128, 128 + rand() % 128);
+		//_color = Color3B(255, 255, 255);
+		_fElapsedTime = 0;
+		_fDelayTime = rand() % 100 / 1000.0f;
+		_fGravity = 0;
+		break;
+	case BALLOON:
 		_fVelocity = 6.5f;
 		t = 2.0f * M_PI * (rand() % 1000) / 1000.0f;
 		sint = sinf(t);  cost = cosf(t); cos4t = cosf(4 * t); sin12t = sin(t / 12.0f);

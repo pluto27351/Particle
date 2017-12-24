@@ -7,12 +7,15 @@
 #define EXPLOSION 3				// 噴射出圓形的煙火
 #define HEARTSHAPE 4			// 噴射出心型的煙火
 #define BUTTERFLYSHAPE	5		// 噴射出蝴蝶外型的煙火
+#define THUNDER	6		        // 雷擊
+#define MAGIC	7		        // 魔法陣
+#define BALLOON	8		        // 氣球
 
-#define EMITTER_DEFAULT 99
-#define FIREWORK 100
-#define ROLL 101
-#define WATERBALL 102
-#define BOMB 103
+#define EMITTER_DEFAULT 99      //預設
+#define FIREWORK 100            //煙火
+#define ROLL 101                //外螺旋
+#define WATERBALL 102           //內螺旋
+#define BOMB 103                //核彈
 
 #include "cocos2d.h"
 

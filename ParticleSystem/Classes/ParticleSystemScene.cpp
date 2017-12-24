@@ -447,7 +447,7 @@ void ParticleSystemScene::TypeEvent(cocos2d::Ref* sender, cocos2d::ui::Slider::E
 		Slider* slider = dynamic_cast<Slider*>(sender);
 		int percent = slider->getPercent();
 		int maxPercent = slider->getMaxPercent();
-		int iType = percent/20; // 0 到 360 之間
+		int iType = ((float)percent/25)*2; // 0 到 8 之間
 		_TypeBMValue->setString(StringUtils::format("%2d", iType));
 		if(_bEmitterOn){ 
 			_ParticleControl.setType(iType + 99);
