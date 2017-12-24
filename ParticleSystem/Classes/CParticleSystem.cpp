@@ -190,11 +190,7 @@ void CParticleSystem::doStep(float dt)
 				break;
 			case BOMB:
 				if (_iFree != 0) {
-					if (_iInUsed == 0) {
-						em = _emitterPt + Vec2(0, 450);
-						_fSpread = 13;
-					}
-					else if (em.y > 100 && _fSpread < 15) {
+					if (em.y > 100 && _fSpread < 15) {
 						// 沮 Emitter 闽把计砞﹚┮玻ネだ把计
 						if (_iFree != 0) {
 							get = _FreeList.front();
@@ -222,31 +218,48 @@ void CParticleSystem::doStep(float dt)
 						}
 						em.y -= 6;
 					}
-					else if ((em.y < 100 && _fSpread < 15)) {
-						em.y = 100; _fSpread = 20;
-						for (int i = 0; i < 150; i++) {
+					else if ((em.y < 500)) {
+						_fSpread = 20;
+						for (int i = 0; i <50; i++) {
 							// 沮 Emitter 闽把计砞﹚┮玻ネだ把计
 							if (_iFree != 0) {
+								float dx = cos((em.y - 75) / 425 * M_PI);
 								get = _FreeList.front();
-								get->setBehavior(BOMB);
-								get->setLifetime(4);
-								get->setPosition(em + Vec2(i-75, 0));
-								//get->setColor(Color3B(255,94,68));
-								//get->setDelayTime((1-_fElpasedTime));
-								get->setSize(0.5f);
+								get->setBehavior(EMITTER_DEFAULT);
+								get->setLifetime(2);
+								get->setPosition(em + Vec2((i-25)*dx,0));
+								get->setEm(_emitterPt);
+								get->setVelocity(0);
+								get->setGravity(0);
+								get->setSpin(0);
+								get->setOpacity(255);
+								get->setRDelayTime(0);
+								get->setColor(Color3B(255, 75, 75));
+								get->setDelayTime(0);
+								if (em.y > 400) { 
+									float size = (2+sin((em.y - 400) / 100 * M_PI)*2);
+									get->setSize(size);
+									CCLOG("%f", size);
+								}
+								else { get->setSize(1.5f); }
 								get->setParticleName("cloud.png");
 								// 沮 _fSpread 籔 _vDir 玻ネよ
 								float k = (i / 5.0f * 4.0f + 30.0f);
 								float t = k* M_PI / 180.0f;
-								Vec2 vdir(cosf(t), 0.5);
+								Vec2 vdir(0,1);
 								get->setDirection(vdir);
 								_FreeList.pop_front();
 								_InUsedList.push_front(get);
 								_iFree--; _iInUsed++;
 							}
 						}
-
+						em.y += 20;
 					}
+					else if(_iInUsed == 0){
+						em = _emitterPt+Vec2(0,450);
+						_fSpread = 13;
+					}
+					
 				}
 				break;
 		}
@@ -266,7 +279,7 @@ void CParticleSystem::doStep(float dt)
 			else it++;
 		}
 	}
-	CCLOG("%f", _fElpasedTime);
+	//CCLOG("%d", _iInUsed);
 }
 
 

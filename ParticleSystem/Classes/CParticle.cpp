@@ -299,16 +299,15 @@ bool CParticle::doStep(float dt)
 		else if (_bVisible) {
 			sint = sinf(M_PI*_fElapsedTime / _fLifeTime*2);
 			cost = cosf(M_PI_2*_fElapsedTime / _fLifeTime);
+			float rx = -cosf((_Pos.x + _em.x) / 45 * M_PI)*5;
 			_Particle->setScale(_fSize + sint * 1.5f);
+			_Particle->setScale(_fSize);
 			_Particle->setOpacity(_fOpacity * cost);
 			_Particle->setColor(_color);
-			_Pos.x += _Direction.x * _fVelocity * dt * PIXEL_PERM*cost*5;
+			float dx = _Direction.x*rx;
+			_Pos.x += _Direction.x * _fVelocity * dt * PIXEL_PERM;
 			float tt = GRAVITY_Y(_fElapsedTime, dt, _fGravity);
-			_Pos.y += (_Direction.y * _fVelocity + tt)* dt * PIXEL_PERM*3;
-			/*float r = atan2f(_Direction.y, _Direction.x);
-			r += _fElapsedTime / _fLifeTime * M_PI;
-			_Pos.x += cos(r)*1.5;
-			_Pos.y += sin(r)*1.5;*/
+			_Pos.y += (_Direction.y * _fVelocity + tt)* dt * PIXEL_PERM*1.5;
 			_Particle->setPosition(_Pos);
 		}
 		break;
