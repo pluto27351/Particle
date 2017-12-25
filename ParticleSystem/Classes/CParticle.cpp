@@ -198,16 +198,16 @@ bool CParticle::doStep(float dt)
 			return true; // 分子生命週期已經結束
 		}
 		else {
-			// 根據心型公式，計算每一個分子的終止位置
+			float r = (_fElapsedTime / _fLifeTime) * M_PI *100;
+			Vec2 nextPos;
+			nextPos.x = _Pos.x + 200 * cosf(r);
+			nextPos.y = _Pos.y + 200 * sinf(r)/2;
 			sint = sinf(M_PI*_fElapsedTime / _fLifeTime);
 			cost = cosf(M_PI_2*_fElapsedTime / _fLifeTime);
 			_Particle->setScale(1.25 + (1 - cost)*2.0);
 			_Particle->setOpacity(_fOpacity * cost);
 			_Particle->setColor(_color);
-			_Pos.x += _Direction.x * cost * _fVelocity * dt * PIXEL_PERM;
-			float tt = GRAVITY_Y(_fElapsedTime, dt, _fGravity);
-			_Pos.y += (_Direction.y * cost * _fVelocity + tt)* dt * PIXEL_PERM;
-			_Particle->setPosition(_Pos);
+			_Particle->setPosition(nextPos);
 		}
 		break;
 	case BALLOON:
@@ -509,20 +509,16 @@ void CParticle::setBehavior(int iType)
 		_fGravity = 0;
 		break;
 	case MAGIC:
-		_fVelocity = 6.5f;
-		t = 2.0f * M_PI * (rand() % 1000) / 1000.0f;
-		sint = sinf(t);  cost = cosf(t); cos4t = cosf(4 * t); sin12t = sin(t / 12.0f);
-		_Direction.x = sint*(expf(cost) - 2 * cos4t - powf(sin12t, 5));
-		_Direction.y = cost*(expf(cost) - 2 * cos4t - powf(sin12t, 5));
-		_fLifeTime = 1.5f + LIFE_NOISE(0.15f);
+		_fVelocity = 1;
+		_fLifeTime = 0.5f + LIFE_NOISE(0.15f);
 		_fIntensity = 1;
 		_fOpacity = 255;
 		_fSpin = 0;
-		_fSize = 1;
+		_fSize = 0.2f;
 		_color = Color3B(128 + rand() % 128, 128 + rand() % 128, 128 + rand() % 128);
 		//_color = Color3B(255, 255, 255);
 		_fElapsedTime = 0;
-		_fDelayTime = rand() % 100 / 1000.0f;
+		_fDelayTime = 0;
 		_fGravity = 0;
 		break;
 	case BALLOON:

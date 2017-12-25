@@ -438,12 +438,37 @@ void CParticleSystem::onTouchesBegan(const cocos2d::CCPoint &touchPoint)
 		break;
 	case MAGIC:
 		// 從 _FreeList 取得一個分子給放到 _InUsed
-		if (_iFree > 150) {
-			for (int i = 0; i < 150; i++) {
+		if (_iFree > 100) {
+			for (int i = 0; i < 50; i++) {
 				get = _FreeList.front();
-				get->setBehavior(BUTTERFLYSHAPE);
+				get->setBehavior(MAGIC);
 				get->setPosition(touchPoint);
 				get->setGravity(_fGravity);
+				_FreeList.pop_front();
+				_InUsedList.push_front(get);
+				_iFree--; _iInUsed++;
+			}
+			Color3B color = Color3B(rand() % 255, rand() % 255, rand() % 255);
+			for (int i = 0; i < 50; i++) {
+				Vec2 pos;
+				float r = (float)i / 50 * M_PI * 2;
+				pos.x = touchPoint.x + 200 * cosf(r);
+				pos.y = touchPoint.y + 200 * sinf(r) / 2;
+				get = _FreeList.front();
+				get->setBehavior(EMITTER_DEFAULT);
+				get->setVelocity(2);
+				get->setLifetime(0.5);
+				get->setGravity(0);
+				get->setPosition(pos);
+				get->setColor(color);
+				get->setSpin(0);
+				get->setOpacity(255);
+				get->setSize(0.025f);
+				get->setParticleName(_cName);
+				get->setWindDir(0);
+				get->setWindStr(0);
+				Vec2 vdir(cosf(r)*3, 4);
+				get->setDirection(vdir);
 				_FreeList.pop_front();
 				_InUsedList.push_front(get);
 				_iFree--; _iInUsed++;
