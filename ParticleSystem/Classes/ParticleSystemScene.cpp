@@ -260,6 +260,8 @@ void  ParticleSystemScene::onTouchEnded(cocos2d::Touch *pTouch, cocos2d::Event *
 		_ParticleControl.setEmitter(_bEmitterOn); // 更新控制系統中的 Emitter 狀態
 	}
 
+	if (!_emitterSwitchBtn->touchesMoved(touchLoc) && !_bEmitterOn) _ParticleControl.onTouchesEnded(touchLoc);
+
 	for (int i = 0; i < 7; i++) {
 		if (btn[i].isUsed()) {
 			if (i != _iUsedBtnNum) {
@@ -424,7 +426,8 @@ void ParticleSystemScene::WindDirEvent(cocos2d::Ref* sender, cocos2d::ui::Slider
 		float fwindDir = (-50.0f + percent) / 5.0f*18;  //-180~180
 		_WindDirBMValue->setString(StringUtils::format("%2.1f", fwindDir));
 		float t = fwindDir * M_PI / 180.0f;
-		_ParticleControl._fWindDir = t;
+		_ParticleControl.setWindDir(t);
+
 	}
 }
 
@@ -436,7 +439,7 @@ void ParticleSystemScene::WindStrEvent(cocos2d::Ref* sender, cocos2d::ui::Slider
 		int percent = slider->getPercent();
 		float fStr = percent*0.1f; // 0 到 10 之間
 		_WindStrBMValue->setString(StringUtils::format("%2.1f", fStr));
-		_ParticleControl._fWindStr = fStr;
+		_ParticleControl.setWindStr(fStr);
 	}
 }
 

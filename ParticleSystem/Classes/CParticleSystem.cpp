@@ -32,6 +32,40 @@ void CParticleSystem::doStep(float dt)
 {
 	CParticle *get;
 	list <CParticle *>::iterator it;
+	if (_bBalloon == 1) {
+		if (_iFree != 0) {
+			balloonSize += dt*0.5;
+			get = _FreeList.front();
+			get->setBehavior(BALLOON);
+			get->setPosition(mouse);
+			get->setGravity(_fGravity);
+			get->setLifetime(0.5f);
+			get->setVelocity(0);
+			get->setSize(balloonSize);
+			_FreeList.pop_front();
+			_InUsedList.push_front(get);
+			_iFree--; _iInUsed++;
+		}
+	}
+	else if (_bBalloon == 2) {
+		if (_iFree != 0) {
+			get = _FreeList.front();
+			get->setBehavior(BALLOON);
+			get->setPosition(mouse);
+			get->setGravity(_fGravity);
+			get->setLifetime(5.0f);
+			get->setSize(balloonSize);
+			get->setVelocity(1);
+			Vec2 vdir(0,3.0f);
+			get->setDirection(vdir);
+			_FreeList.pop_front();
+			_InUsedList.push_front(get);
+			_iFree--; _iInUsed++;
+			_bBalloon = 0;
+			balloonSize = 0.125f;
+		}
+	}
+
 	if (_bEmitterOn) { // 根據 Emitter 設定的相關參數，產生相對應的分子
 					   // 先計算在累加
 		switch (_iType) {
@@ -294,6 +328,28 @@ void CParticleSystem::setGravity(float fGravity)
 		}
 	}
 }
+void CParticleSystem::setWindDir(float fwindd)
+{
+	// 設定目前 particle 是在 inused 的 gravity
+	_fWindDir = fwindd;
+	list <CParticle *>::iterator it;
+	if (_iInUsed != 0) { // 有分子需要更新時
+		for (it = _InUsedList.begin(); it != _InUsedList.end(); it++) {
+			(*it)->setWindDir(_fWindDir);
+		}
+	}
+}
+void CParticleSystem::setWindStr(float fwinds)
+{
+	// 設定目前 particle 是在 inused 的 gravity
+	_fWindStr = fwinds;
+	list <CParticle *>::iterator it;
+	if (_iInUsed != 0) { // 有分子需要更新時
+		for (it = _InUsedList.begin(); it != _InUsedList.end(); it++) {
+			(*it)->setWindStr(_fWindStr);
+		}
+	}
+}
 
 void CParticleSystem::setParticlesName(char *c)
 {
@@ -477,19 +533,9 @@ void CParticleSystem::onTouchesBegan(const cocos2d::CCPoint &touchPoint)
 		else return;// 沒有分子, 所以就不提供
 		break;
 	case BALLOON:
-		// 從 _FreeList 取得一個分子給放到 _InUsed
-		if (_iFree > 150) {
-			for (int i = 0; i < 150; i++) {
-				get = _FreeList.front();
-				get->setBehavior(BUTTERFLYSHAPE);
-				get->setPosition(touchPoint);
-				get->setGravity(_fGravity);
-				_FreeList.pop_front();
-				_InUsedList.push_front(get);
-				_iFree--; _iInUsed++;
-			}
-		}
-		else return;// 沒有分子, 所以就不提供
+		balloonSize = 0.5f;
+		_bBalloon = 1;
+		mouse = touchPoint;
 		break;
 	}
 }
@@ -537,5 +583,19 @@ void CParticleSystem::onTouchesMoved(const cocos2d::CCPoint &touchPoint)
 		}
 		else return;// 沒有分子, 所以就不提供
 		break;
+	}
+	mouse = touchPoint;
+}
+
+void CParticleSystem::onTouchesEnded(const cocos2d::CCPoint &touchPoint)
+{
+	CParticle *get;
+	mouse = touchPoint;
+	switch (_iType)
+	{
+		case BALLOON:
+			_bBalloon = 2;
+			break;
+
 	}
 }

@@ -497,7 +497,7 @@
             <PreSize X="0.0117" Y="0.0431" />
             <LabelBMFontFile_CNB Type="Normal" Path="couriernew32.fnt" Plist="" />
           </AbstractNodeData>
-          <AbstractNodeData Name="Slider_WindStr" ActionTag="-2038261415" Tag="44" IconVisible="False" LeftMargin="733.8174" RightMargin="296.1826" TopMargin="683.5295" BottomMargin="23.4705" TouchEnable="True" PercentInfo="50" ctype="SliderObjectData">
+          <AbstractNodeData Name="Slider_WindStr" ActionTag="-2038261415" Tag="44" IconVisible="False" LeftMargin="733.8174" RightMargin="296.1826" TopMargin="683.5295" BottomMargin="23.4705" TouchEnable="True" ctype="SliderObjectData">
             <Size X="250.0000" Y="13.0000" />
             <AnchorPoint ScaleX="0.5000" ScaleY="0.5000" />
             <Position X="858.8174" Y="29.9705" />

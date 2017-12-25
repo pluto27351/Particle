@@ -218,22 +218,28 @@ bool CParticle::doStep(float dt)
 			_Particle->setColor(_color);
 			_Particle->setPosition(_Pos);
 		}
-		else if (_fElapsedTime > _fLifeTime) {
+		else if (_fElapsedTime> _fLifeTime) {
 			_bVisible = false;
 			_Particle->setVisible(_bVisible);
 			return true; // 分子生命週期已經結束
 		}
 		else {
-			// 根據心型公式，計算每一個分子的終止位置
+			//float wind = (1.0f + sin(_fElapsedTime))*_fWindStr*_fElapsedTime * 3;
+			//Vec2 winddir(sinf(_fWindDir)*wind, cosf(_fWindDir)*wind);
+			Vec2 winddir = Vec2(cosf(M_PI*(_fElapsedTime+90) / 180 * 100)*_fWindStr, 1);
+			winddir.x = winddir.x*cosf(_fWindDir) + winddir.y*sinf(_fWindDir);
+			winddir.y = winddir.x*sinf(_fWindDir)*-1 + winddir.y*cosf(_fWindDir);
+
 			sint = sinf(M_PI*_fElapsedTime / _fLifeTime);
 			cost = cosf(M_PI_2*_fElapsedTime / _fLifeTime);
-			_Particle->setScale(1.25 + (1 - cost)*2.0);
+			_Particle->setScale(_fSize + sint * 2* _fVelocity);
 			_Particle->setOpacity(_fOpacity * cost);
-			_Particle->setColor(_color);
-			_Pos.x += _Direction.x * cost * _fVelocity * dt * PIXEL_PERM;
+			_Particle->setColor(Color3B(INTENSITY((_color.r + sint * 64)*(1 + sint)),
+			INTENSITY((_color.g - cost * 32)*(1 + sint)), INTENSITY((_color.b - sint * 64)*(1 + sint))));
 			float tt = GRAVITY_Y(_fElapsedTime, dt, _fGravity);
-			_Pos.y += (_Direction.y * cost * _fVelocity + tt)* dt * PIXEL_PERM;
-			_Particle->setPosition(_Pos);
+			_Pos.y += (_Direction.y  * _fVelocity + tt) * dt * PIXEL_PERM;
+			if(_fVelocity != 0)_Pos.x += cosf(M_PI*_fElapsedTime / 180 * 100);
+			_Particle->setPosition(_Pos + winddir);
 		}
 		break;
 	case EMITTER_DEFAULT:
@@ -250,13 +256,14 @@ bool CParticle::doStep(float dt)
 			return true; // 分子生命週期已經結束
 		}
 		else {
-			float wind = (1.0f + sin(_fElapsedTime))*_fWindStr*_fElapsedTime*3;
-			Vec2 winddir(sinf(_fWindDir)*wind, cosf(_fWindDir)*wind);
+			Vec2 winddir = Vec2(cosf(M_PI*_fWindStr/180), 1);
+			winddir.x = winddir.x*cosf(_fWindDir) + winddir.y*sinf(_fWindDir);
+			winddir.y = winddir.x*sinf(_fWindDir)*-1 + winddir.y*cosf(_fWindDir);
+			winddir *= _fElapsedTime * 10;
 			sint = sinf(M_PI*_fElapsedTime / _fLifeTime);
 			cost = cosf(M_PI_2*_fElapsedTime / _fLifeTime);
 			_Particle->setScale(_fSize + sint * 1.5f);
 			_Particle->setOpacity(_fOpacity * cost);
-			//_Particle->setColor(Color3B(INTENSITY(_color.r*(1 + sint)), INTENSITY(_color.g*(1 + sint)), INTENSITY(_color.b*(1 + sint))));
 			_Particle->setColor(_color);
 			_Pos.x += _Direction.x * _fVelocity * dt * PIXEL_PERM;
 			float tt = GRAVITY_Y(_fElapsedTime, dt, _fGravity);
@@ -522,21 +529,18 @@ void CParticle::setBehavior(int iType)
 		_fGravity = 0;
 		break;
 	case BALLOON:
-		_fVelocity = 6.5f;
-		t = 2.0f * M_PI * (rand() % 1000) / 1000.0f;
-		sint = sinf(t);  cost = cosf(t); cos4t = cosf(4 * t); sin12t = sin(t / 12.0f);
-		_Direction.x = sint*(expf(cost) - 2 * cos4t - powf(sin12t, 5));
-		_Direction.y = cost*(expf(cost) - 2 * cos4t - powf(sin12t, 5));
-		_fLifeTime = 1.5f + LIFE_NOISE(0.15f);
+		//_fVelocity = 0;
+		//_fLifeTime = 2.5f + LIFE_NOISE(0.15f);
 		_fIntensity = 1;
 		_fOpacity = 255;
 		_fSpin = 0;
-		_fSize = 1;
-		_color = Color3B(128 + rand() % 128, 128 + rand() % 128, 128 + rand() % 128);
-		//_color = Color3B(255, 255, 255);
+		//_fSize = 1;
+		_color = Color3B(64 + rand() % 128, 64 + rand() % 128, 64 + rand() % 128);
 		_fElapsedTime = 0;
-		_fDelayTime = rand() % 100 / 1000.0f;
+		_fDelayTime = 0;
 		_fGravity = 0;
+		_Particle->setOpacity(255);
+		_Particle->setScale(_fSize);
 		break;
 	case EMITTER_DEFAULT:
 		_fIntensity = 1;
