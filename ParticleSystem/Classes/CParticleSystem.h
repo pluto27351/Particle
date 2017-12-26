@@ -22,6 +22,7 @@ private:
 	int fireworkmode = 1;
 	float balloonSize=0.125f;
 	int _bBalloon=0;
+	int _mode = 0;
 	cocos2d::Point mouse;
 	
 public:

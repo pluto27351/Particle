@@ -37,9 +37,15 @@ private:
 	CDraggableSprite *_EmitterSprite;
 	bool _bEmitterOn;
 	CSwitchButton *_emitterSwitchBtn;
+	CSwitchButton *_fireworkSwitchBtn;
+	CSwitchButton *_rollSwitchBtn;
+	CSwitchButton *_waterballSwitchBtn;
+	CSwitchButton *_bombSwitchBtn;
+	CSwitchButton *_newbtn = false;
 
 	CButton *btn;
 	int _iUsedBtnNum=0;
+	int itype=0;
 public:
 
 	CParticleSystem _ParticleControl;

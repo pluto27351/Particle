@@ -224,22 +224,21 @@ bool CParticle::doStep(float dt)
 			return true; // 分子生命週期已經結束
 		}
 		else {
-			//float wind = (1.0f + sin(_fElapsedTime))*_fWindStr*_fElapsedTime * 3;
-			//Vec2 winddir(sinf(_fWindDir)*wind, cosf(_fWindDir)*wind);
-			Vec2 winddir = Vec2(cosf(M_PI*(_fElapsedTime+90) / 180 * 100)*_fWindStr, 1);
-			winddir.x = winddir.x*cosf(_fWindDir) + winddir.y*sinf(_fWindDir);
-			winddir.y = winddir.x*sinf(_fWindDir)*-1 + winddir.y*cosf(_fWindDir);
-
+			Vec2 winddir(sinf(_fWindDir)*_fWindStr / 3, cosf(_fWindDir)*_fWindStr / 3);
 			sint = sinf(M_PI*_fElapsedTime / _fLifeTime);
 			cost = cosf(M_PI_2*_fElapsedTime / _fLifeTime);
-			_Particle->setScale(_fSize + sint * 2* _fVelocity);
+			_Particle->setScale(_fSize + sint * _fVelocity);
 			_Particle->setOpacity(_fOpacity * cost);
 			_Particle->setColor(Color3B(INTENSITY((_color.r + sint * 64)*(1 + sint)),
 			INTENSITY((_color.g - cost * 32)*(1 + sint)), INTENSITY((_color.b - sint * 64)*(1 + sint))));
 			float tt = GRAVITY_Y(_fElapsedTime, dt, _fGravity);
-			_Pos.y += (_Direction.y  * _fVelocity + tt) * dt * PIXEL_PERM;
-			if(_fVelocity != 0)_Pos.x += cosf(M_PI*_fElapsedTime / 180 * 100);
-			_Particle->setPosition(_Pos + winddir);
+			
+			if (_fVelocity != 0) {
+				_Pos.y += (_Direction.y  * (_fVelocity + _fElapsedTime / _fLifeTime*3.0f) + tt) * dt * PIXEL_PERM;
+				_Pos.x += _Direction.x * _fVelocity * dt * PIXEL_PERM;
+				_Pos += winddir;
+			}
+			_Particle->setPosition(_Pos);
 		}
 		break;
 	case EMITTER_DEFAULT:
@@ -256,10 +255,13 @@ bool CParticle::doStep(float dt)
 			return true; // 分子生命週期已經結束
 		}
 		else {
-			Vec2 winddir = Vec2(cosf(M_PI*_fWindStr/180), 1);
+			/*float wind = (1.0f + sin(_fElapsedTime/(_fLifeTime*13)))*_fWindStr*_fElapsedTime*3 ;
+			Vec2 winddir(sinf(_fWindDir)*wind, cosf(_fWindDir)*wind);*/
+			/*	Vec2 winddir = Vec2(cosf(M_PI*(_fElapsedTime+90) / 180 * 100)*_fWindStr, 1);
 			winddir.x = winddir.x*cosf(_fWindDir) + winddir.y*sinf(_fWindDir);
-			winddir.y = winddir.x*sinf(_fWindDir)*-1 + winddir.y*cosf(_fWindDir);
-			winddir *= _fElapsedTime * 10;
+			winddir.y = winddir.x*sinf(_fWindDir)*-1 + winddir.y*cosf(_fWindDir);*/
+
+			Vec2 winddir(sinf(_fWindDir)*_fWindStr/3, cosf(_fWindDir)*_fWindStr/3);
 			sint = sinf(M_PI*_fElapsedTime / _fLifeTime);
 			cost = cosf(M_PI_2*_fElapsedTime / _fLifeTime);
 			_Particle->setScale(_fSize + sint * 1.5f);
@@ -268,7 +270,8 @@ bool CParticle::doStep(float dt)
 			_Pos.x += _Direction.x * _fVelocity * dt * PIXEL_PERM;
 			float tt = GRAVITY_Y(_fElapsedTime, dt, _fGravity);
 			_Pos.y += (_Direction.y * _fVelocity + tt)* dt * PIXEL_PERM;
-			_Particle->setPosition(_Pos+ winddir);
+			_Pos += winddir;
+			_Particle->setPosition(_Pos);
 		}
 		break;
 	case FIREWORK:

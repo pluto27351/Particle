@@ -39,7 +39,7 @@ void CParticleSystem::doStep(float dt)
 			get->setBehavior(BALLOON);
 			get->setPosition(mouse);
 			get->setGravity(_fGravity);
-			get->setLifetime(0.5f);
+			get->setLifetime(0.1f);
 			get->setVelocity(0);
 			get->setSize(balloonSize);
 			_FreeList.pop_front();
@@ -48,19 +48,23 @@ void CParticleSystem::doStep(float dt)
 		}
 	}
 	else if (_bBalloon == 2) {
-		if (_iFree != 0) {
-			get = _FreeList.front();
-			get->setBehavior(BALLOON);
-			get->setPosition(mouse);
-			get->setGravity(_fGravity);
-			get->setLifetime(5.0f);
-			get->setSize(balloonSize);
-			get->setVelocity(1);
-			Vec2 vdir(0,3.0f);
-			get->setDirection(vdir);
-			_FreeList.pop_front();
-			_InUsedList.push_front(get);
-			_iFree--; _iInUsed++;
+		if (_iFree > 10) {
+			for (int i = 0; i < 10; i++) {
+				get = _FreeList.front();
+				get->setBehavior(BALLOON);
+				get->setPosition(mouse);
+				get->setGravity(_fGravity);
+				get->setLifetime(10.0f);
+				get->setSize(balloonSize);
+				get->setVelocity(1);
+				get->setWindDir(_fWindDir);
+				get->setWindStr(_fWindStr);
+				Vec2 vdir(0, 3.0f);
+				get->setDirection(vdir);
+				_FreeList.pop_front();
+				_InUsedList.push_front(get);
+				_iFree--; _iInUsed++;
+			}
 			_bBalloon = 0;
 			balloonSize = 0.125f;
 		}
@@ -169,20 +173,17 @@ void CParticleSystem::doStep(float dt)
 						if (_iFree != 0) {
 							get = _FreeList.front();
 							get->setBehavior(ROLL);
-							get->setVelocity(_fVelocity);
+							get->setVelocity(2.0f);
 							get->setLifetime(_fLifeTime);
 							get->setGravity(_fGravity);
 							get->setPosition(em);
 							get->setColor(Color3B(rand() % 255 + 1, rand() % 255 + 1, rand() % 255 + 1));
 							get->setSpin(_fSpin);
-							get->setOpacity(_fOpacity);
+							get->setOpacity(255);
 							get->setSize(0.125f);
 							get->setParticleName(_cName);
-							get->setWindDir(_fWindDir);
-							get->setWindStr(_fWindStr);
 							// 根據 _fSpread 與 _vDir 產生方向
 							float t = (rand() % 1001) / 1000.0f; // 產生介於 0 到 1 間的數
-
 							get->setDirection(vdir);
 							_FreeList.pop_front();
 							_InUsedList.push_front(get);
@@ -200,13 +201,13 @@ void CParticleSystem::doStep(float dt)
 						if (_iFree != 0) {
 							get = _FreeList.front();
 							get->setBehavior(WATERBALL);
-							get->setVelocity(_fVelocity * 5);
+							get->setVelocity(10.0f);
 							get->setLifetime(0.7f);
 							get->setGravity(_fGravity);
 							get->setPosition(em);
 							get->setColor(Color3B(rand() % 255 + 1, rand() % 255 + 1, rand() % 255 + 1));
-							get->setSpin(_fSpin);
-							get->setOpacity(_fOpacity);
+							get->setSpin(255);
+							get->setOpacity(255);
 							get->setSize(0.05f);
 							get->setEm(_emitterPt);
 							get->setParticleName(_cName);
@@ -224,7 +225,7 @@ void CParticleSystem::doStep(float dt)
 				break;
 			case BOMB:
 				if (_iFree != 0) {
-					if (em.y > 100 && _fSpread < 15) {
+					if (em.y > 100 && _mode == 0) {
 						// 根據 Emitter 的相關參數，設定所產生分子的參數
 						if (_iFree != 0) {
 							get = _FreeList.front();
@@ -242,7 +243,7 @@ void CParticleSystem::doStep(float dt)
 							get->setWindStr(0);
 							// 根據 _fSpread 與 _vDir 產生方向
 							float t = (rand() % 1001) / 1000.0f; // 產生介於 0 到 1 間的數
-							t = _fSpread - t * _fSpread * 2; //  產生的角度，轉成弧度
+							t = 13.0f - t * 13.0f * 2; //  產生的角度，轉成弧度
 							t = (90 + t)* M_PI / 180.0f;
 							Vec2 vdir(cosf(t), sinf(t));
 							get->setDirection(vdir);
@@ -253,7 +254,7 @@ void CParticleSystem::doStep(float dt)
 						em.y -= 6;
 					}
 					else if ((em.y < 500)) {
-						_fSpread = 20;
+						_mode = 1;
 						for (int i = 0; i <50; i++) {
 							// 根據 Emitter 的相關參數，設定所產生分子的參數
 							if (_iFree != 0) {
@@ -291,7 +292,7 @@ void CParticleSystem::doStep(float dt)
 					}
 					else if(_iInUsed == 0){
 						em = _emitterPt+Vec2(0,450);
-						_fSpread = 13;
+						_mode = 0;
 					}
 					
 				}

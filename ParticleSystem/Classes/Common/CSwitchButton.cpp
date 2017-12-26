@@ -130,3 +130,10 @@ bool CSwitchButton::getStatus()
 {
 	return(_bSwitchOn); // 傳回目前按鈕的狀態為開或是關
 }
+
+void CSwitchButton::setStatus(bool s) {
+	_SwitchOnPic->setVisible(false);
+	_SwitchTDPic->setVisible(false);
+	_SwitchOffPic->setVisible(true);
+	_bSwitchOn = s;
+}

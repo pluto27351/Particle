@@ -56,9 +56,26 @@ bool ParticleSystemScene::init()
 	auto emiterpos = (Sprite *)(rootNode->getChildByName("emitterpos"));
 	Point loc = emiterpos->getPosition();
 	emiterpos->setVisible(false);
+
 	_emitterSwitchBtn = CSwitchButton::create();
 	_emitterSwitchBtn->setButtonInfo("emitteroff.png", "emitteron.png", "emittertd.png", loc);
 	this->addChild(_emitterSwitchBtn, 2);
+
+	_fireworkSwitchBtn = CSwitchButton::create();
+	_fireworkSwitchBtn->setButtonInfo("fireworkoff.png", "fireworkon.png", "fireworktd.png", loc + Vec2(0,100));
+	this->addChild(_fireworkSwitchBtn, 2);
+
+	_rollSwitchBtn = CSwitchButton::create();
+	_rollSwitchBtn->setButtonInfo("rolloff.png", "rollon.png", "rolltd.png", loc+Vec2(0,200));
+	this->addChild(_rollSwitchBtn, 2);
+
+	_waterballSwitchBtn = CSwitchButton::create();
+	_waterballSwitchBtn->setButtonInfo("waterball.png", "waterballon.png", "waterballtd.png", loc+ Vec2(0,300));
+	this->addChild(_waterballSwitchBtn, 2);
+
+	_bombSwitchBtn = CSwitchButton::create();
+	_bombSwitchBtn->setButtonInfo("bomboff.png", "bombon.png", "bombtd.png", loc + Vec2(0,400));
+	this->addChild(_bombSwitchBtn, 2);
 
 	// Particle Control System
 	// 最好的方式是，以下的 Slider 根據這裡的設定值，顯示出正確的數值與位置
@@ -202,7 +219,11 @@ bool ParticleSystemScene::onTouchBegan(cocos2d::Touch *pTouch, cocos2d::Event *p
 	//顯示 Emitter 時，可拖曳該圖式
 	if( _bEmitterOn ) _EmitterSprite->touchesBegan(touchLoc);
 	// 沒有顯示 Emitter，而且沒有按在 Emitter 切換按鈕上，才讓 touch 可以點選顯示分子
-	if ( !_emitterSwitchBtn->touchesBegan(touchLoc) && !_bEmitterOn ) _ParticleControl.onTouchesBegan(touchLoc);
+	if ( !_emitterSwitchBtn->touchesBegan(touchLoc) &&
+		!_fireworkSwitchBtn->touchesBegan(touchLoc) && 
+		!_rollSwitchBtn->touchesBegan(touchLoc) && 
+		!_waterballSwitchBtn->touchesBegan(touchLoc) && 
+		!_bombSwitchBtn->touchesBegan(touchLoc) && !_bEmitterOn ) _ParticleControl.onTouchesBegan(touchLoc);
 
 	for (int i = 0; i < 7; i++) {
 		btn[i].isTouched(touchLoc);
@@ -219,7 +240,11 @@ void  ParticleSystemScene::onTouchMoved(cocos2d::Touch *pTouch, cocos2d::Event *
 			_ParticleControl._emitterPt = _EmitterSprite->getLoc();
 	}
 	// 沒有顯示 Emitter，而且沒有按在 Emitter 切換按鈕上，才讓 touch 可以點選顯示分子
-	if ( !_emitterSwitchBtn->touchesMoved(touchLoc) && !_bEmitterOn ) _ParticleControl.onTouchesMoved(touchLoc);
+	if ( !_emitterSwitchBtn->touchesMoved(touchLoc) &&
+		!_fireworkSwitchBtn->touchesMoved(touchLoc) && 
+		!_rollSwitchBtn->touchesMoved(touchLoc) && 
+		!_waterballSwitchBtn->touchesMoved(touchLoc) &&
+		!_bombSwitchBtn->touchesMoved(touchLoc) && !_bEmitterOn ) _ParticleControl.onTouchesMoved(touchLoc);
 
 	for (int i = 0; i < 7; i++) {
 		btn[i].isLeave(touchLoc);
@@ -230,32 +255,111 @@ void  ParticleSystemScene::onTouchEnded(cocos2d::Touch *pTouch, cocos2d::Event *
 {
 	Point touchLoc = pTouch->getLocation();
 	if (_bEmitterOn) {
-		if( _EmitterSprite->touchesEnded(touchLoc) ) 
-			_ParticleControl._emitterPt = _EmitterSprite->getLoc();
+		if (_EmitterSprite->touchesEnded(touchLoc)) {
+			//_ParticleControl._emitterPt = _EmitterSprite->getLoc();
 			//_ParticleControl.em = _ParticleControl._emitterPt - Vec2(0,450);
+		}
 	}
+
 	// 點在 Emitter 切換的圖示上，進行必要的狀態改變
 	if (_emitterSwitchBtn->touchesEnded(touchLoc))
 	{
 		_bEmitterOn = _emitterSwitchBtn->getStatus();
 		if ( _bEmitterOn ) { // 顯示 Emitter 圖示
+			if (_newbtn) {
+				_newbtn->setStatus(false);
+			}
+			_ParticleControl._emitterPt = _EmitterSprite->getLoc();
+			_newbtn = _emitterSwitchBtn;
 			_EmitterSprite->setVisible(true);
 			_ParticleControl.em = _ParticleControl._emitterPt;
-			if(_ParticleControl._iType<99) _ParticleControl._iType += 99;
-			switch (_ParticleControl._iType) {
-			case FIREWORK:
-				_ParticleControl.em = _ParticleControl._emitterPt - Vec2(0, 450);
-				break;
-			case BOMB:
-				_ParticleControl.em = _ParticleControl._emitterPt + Vec2(0, 450);
-				_ParticleControl._fSpread = 13.0f;
-				_ParticleControl._fElpasedTime = 0;
-				break;
-			}
+			_ParticleControl._iType = 99;
 		}
 		else { // 關閉 Emitter 圖示
 			_EmitterSprite->setVisible(false);
-			_ParticleControl._iType -= 99;
+			_ParticleControl._iType = itype;
+		}
+		_ParticleControl.setEmitter(_bEmitterOn); // 更新控制系統中的 Emitter 狀態
+	}
+
+	if (_fireworkSwitchBtn->touchesEnded(touchLoc))
+	{
+		_bEmitterOn = _fireworkSwitchBtn->getStatus();
+		if (_bEmitterOn) { // 顯示 Emitter 圖示
+			if (_newbtn) {
+				_newbtn->setStatus(false);
+				
+			}
+			_newbtn = _fireworkSwitchBtn;
+			_EmitterSprite->setVisible(true);
+			_ParticleControl._iType = 100;
+			_ParticleControl.em = _ParticleControl._emitterPt - Vec2(0, 450);
+		}
+		else { // 關閉 Emitter 圖示
+			_EmitterSprite->setVisible(false);
+			_ParticleControl._iType = itype;
+		}
+		_ParticleControl.setEmitter(_bEmitterOn); // 更新控制系統中的 Emitter 狀態
+	}
+
+	if (_rollSwitchBtn->touchesEnded(touchLoc))
+	{
+		_bEmitterOn = _rollSwitchBtn->getStatus();
+		if (_bEmitterOn) { // 顯示 Emitter 圖示
+			if (_newbtn) {
+				_newbtn->setStatus(false);
+				
+			}
+			_newbtn = _rollSwitchBtn;
+			_EmitterSprite->setVisible(true);
+			_ParticleControl.em = _ParticleControl._emitterPt;
+			_ParticleControl._iType = 101;
+		}
+		else { // 關閉 Emitter 圖示
+			_EmitterSprite->setVisible(false);
+			_ParticleControl._iType = itype;
+		}
+		_ParticleControl.setEmitter(_bEmitterOn); // 更新控制系統中的 Emitter 狀態
+	}
+
+	if (_waterballSwitchBtn->touchesEnded(touchLoc))
+	{
+		_bEmitterOn = _waterballSwitchBtn->getStatus();
+		if (_bEmitterOn) { // 顯示 Emitter 圖示
+			if (_newbtn) {
+				_newbtn->setStatus(false);
+				
+			}
+			_newbtn = _waterballSwitchBtn;
+			_EmitterSprite->setVisible(true);
+			_ParticleControl.em = _ParticleControl._emitterPt;
+			_ParticleControl._iType =102;
+		}
+		else { // 關閉 Emitter 圖示
+			_EmitterSprite->setVisible(false);
+			_ParticleControl._iType = itype;
+		}
+		_ParticleControl.setEmitter(_bEmitterOn); // 更新控制系統中的 Emitter 狀態
+	}
+
+	if (_bombSwitchBtn->touchesEnded(touchLoc))
+	{
+		_bEmitterOn = _bombSwitchBtn->getStatus();
+		if (_bEmitterOn) { // 顯示 Emitter 圖示
+			if (_newbtn) {
+				_newbtn->setStatus(false);
+				
+			}
+			_newbtn = _bombSwitchBtn;
+			_EmitterSprite->setVisible(true);
+			_ParticleControl._iType = 103;
+			_ParticleControl.em = _ParticleControl._emitterPt + Vec2(0, 450);
+			//_ParticleControl._fSpread = 13.0f;
+			_ParticleControl._fElpasedTime = 0;
+		}
+		else { // 關閉 Emitter 圖示
+			_EmitterSprite->setVisible(false);
+			_ParticleControl._iType = itype;
 		}
 		_ParticleControl.setEmitter(_bEmitterOn); // 更新控制系統中的 Emitter 狀態
 	}
@@ -452,7 +556,7 @@ void ParticleSystemScene::TypeEvent(cocos2d::Ref* sender, cocos2d::ui::Slider::E
 		int maxPercent = slider->getMaxPercent();
 		int iType = ((float)percent/25)*2; // 0 到 8 之間
 		_TypeBMValue->setString(StringUtils::format("%2d", iType));
-		if(_bEmitterOn){ 
+		/*if(_bEmitterOn){ 
 			_ParticleControl.setType(iType + 99);
 			switch (iType + 99) {
 				case FIREWORK:
@@ -465,6 +569,9 @@ void ParticleSystemScene::TypeEvent(cocos2d::Ref* sender, cocos2d::ui::Slider::E
 					break;
 			}
 		}
-		else { _ParticleControl.setType(iType); }
+		else { _ParticleControl.setType(iType); }*/
+		itype = iType;
+		if (!_bEmitterOn)  _ParticleControl.setType(iType);
+		
 	}
 }
