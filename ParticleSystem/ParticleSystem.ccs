@@ -4,6 +4,9 @@
     <Group ctype="ResourceGroup">
       <RootFolder Name=".">
         <PlistImageFolder Image="particletexture.png" PListFile="particletexture.plist" Name=".particletexture_PList.Dir">
+          <PlistImageFile Name="airplaneoff.png" Key="airplaneoff.png" />
+          <PlistImageFile Name="airplaneon.png" Key="airplaneon.png" />
+          <PlistImageFile Name="airplanetd.png" Key="airplanetd.png" />
           <PlistImageFile Name="bomboff.png" Key="bomboff.png" />
           <PlistImageFile Name="bombon.png" Key="bombon.png" />
           <PlistImageFile Name="bombtd.png" Key="bombtd.png" />
@@ -32,6 +35,7 @@
           <PlistImageFile Name="waterball.png" Key="waterball.png" />
           <PlistImageFile Name="waterballon.png" Key="waterballon.png" />
           <PlistImageFile Name="waterballtd.png" Key="waterballtd.png" />
+          <PlistImageFile Name="airplane.png" Key="airplane.png" />
         </PlistImageFolder>
         <TTF Name="arial.ttf" />
         <Image Name="background.png" />
